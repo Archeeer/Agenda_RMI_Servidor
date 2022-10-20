@@ -9,10 +9,10 @@ public class Compromisso implements Serializable {
 	public String Nome;
 	public LocalDate Data;
 	public LocalTime Hora;
-	
+
 	ArrayList<Usuario> Convidados = new ArrayList<>();
 	ArrayList<Alerta> listaNotificacao = new ArrayList<>();
-    
+
 
     public Compromisso(String Nome, LocalDate Data, LocalTime Hora, ArrayList<Usuario> Convidados) {
         this.Nome = Nome;
@@ -40,7 +40,7 @@ public class Compromisso implements Serializable {
 	public LocalTime getHora() {
 		return Hora;
 	}
-	
+
 	public ArrayList<Usuario> getConvidados() {
 		return Convidados;
 	}
@@ -48,15 +48,15 @@ public class Compromisso implements Serializable {
 	public void setHora(LocalTime hora) {
 		Hora = hora;
 	}
-	
+
 	@Override
 	public String toString() {
-		return  "Nome: " + this.getNome() + 
+		return  "Nome: " + this.getNome() +
 				", Data: " + this.getData() +
 				", Hora: " + this.getHora() +
 				", Convidados: ";
 	}
-	
+
 	@Override
 	public boolean equals(Object arg0) {
 	    return this.Nome.equals(((Compromisso) arg0).Nome);

@@ -2,13 +2,17 @@ package agenda;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.Timer;
 
 public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
-	
+
 	ArrayList<Compromisso> listaCompromissos = new ArrayList<>();
 	ArrayList<Usuario> listaClientes = new ArrayList<>();
 	ArrayList<Alerta> listaAlertas = new ArrayList<>();
@@ -22,29 +26,29 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 //		// TODO Auto-generated method stub
 //		return null;
 //	}
-	
+
 	@Override
 	public void cadastroUsuario(String N, InterfaceCli C) throws RemoteException{
-		
+
 		Usuario U = new Usuario(N, C);
 		listaClientes.add(U);
 		System.out.println("[SERVIDOR]: Cliente: " + N + " Conectado e Usuario cadastrado!");
-		     
+
 //		return getPublicKey().hashCode();
 	}
 
 	@Override
 	public void cadastroCompromisso(String Nome, LocalDate Data, LocalTime Hora, ArrayList<Usuario> Convidados) throws RemoteException {
-		
+
 		Compromisso C = new Compromisso (Nome, Data, Hora, Convidados);
 		listaCompromissos.add(C);
 		System.out.println("[SERVIDOR]: Cliente Adicionou o Compromisso " + Nome );
-		
+
 		for(Compromisso compromisso: listaCompromissos) {
 		    System.out.println(compromisso);  // Will invoke overrided `toString()` method
 		    System.out.println(compromisso.Convidados);  // Will invoke overrided `toString()` method
 		}
-	
+
 	}
 //
 	@Override
@@ -52,7 +56,7 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 
 		Iterator<Compromisso> c = listaCompromissos.iterator();
 		while (c.hasNext()) {
-			Compromisso compromisso = c.next();	
+			Compromisso compromisso = c.next();
 			if (compromisso.getNome().equals(Nome)){
 				c.remove();
 			}
@@ -62,11 +66,9 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 	@Override
 	public String consultaCompromisso(LocalDate Data) throws RemoteException {
 
-		Iterator<Compromisso> c = listaCompromissos.iterator();
 		String f = "COMPROMISSOS:\n";
-		
-		while (c.hasNext()) {
-			Compromisso compromisso = c.next();	
+
+		for (Compromisso compromisso : listaCompromissos) {
 			if (compromisso.getData().equals(Data)){
 				f = f + compromisso.toString() + "\n" + compromisso.Convidados.toString() + '\n';
 				System.out.println("[SERVIDOR]: Achei 1");
@@ -75,13 +77,13 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 		}
 		System.out.println("[SERVIDOR]: Retornando f\n" + f);
 		return f;
-		
-		
+
+
 	}
 
 	@Override
 	public Usuario buscarConvidado(String Nome) throws RemoteException {
-		
+
 		System.out.println("[SERVIDOR]: Buscando Convidado");
 		for (Usuario user: listaClientes) {
 			if (user.getNome().equals(Nome)) {
@@ -90,9 +92,9 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 		}
 			    return null;
 	}
-	
+
 	public Compromisso buscarCompromisso(String Nome) throws RemoteException {
-		
+
 		System.out.println("[SERVIDOR]: Procurando compromisso");
 		for (Compromisso compromisso: listaCompromissos) {
 			if (compromisso.getNome().equals(Nome)) {
@@ -103,17 +105,19 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 	}
 
 	@Override
-	public Alerta criaAlerta(String hora, String nomeCliente, String nomeCompromisso) throws RemoteException {
-		
-		Alerta temp = new Alerta();
-		temp.refCliente = buscarConvidado(nomeCompromisso).getCliente();
-		temp.dados = buscarCompromisso(nomeCompromisso);
-		temp.Hora =  temp.dados.Hora.minusMinutes(parseLong());
-		parse
-		//TODO parse String to long
-		
-		return temp;
-		
+	public void criaAlerta(String hora, String nomeCliente, String nomeCompromisso) throws RemoteException {
+
+		InterfaceCli refDestino = buscarConvidado(nomeCompromisso).getCliente();
+		Compromisso compAlerta = buscarCompromisso(nomeCompromisso);
+		String infoCompromisso = compAlerta.toString() + compAlerta.Convidados.toString();
+		LocalTime tempo =  compAlerta.Hora.minusMinutes(Long.parseLong(hora));
+
+		Instant instant = compAlerta.Data.atTime(tempo).atZone(ZoneId.systemDefault()).toInstant();
+		Date d = Date.from(instant);
+		Timer time = new Timer();
+		time.schedule(new dispararAlerta(infoCompromisso, refDestino), d);
+
+
 	}
 
 }
