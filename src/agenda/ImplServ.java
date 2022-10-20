@@ -126,12 +126,18 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 
 		Instant instant = compAlerta.Data.atTime(tempo).atZone(ZoneId.systemDefault()).toInstant();
 		Date d = Date.from(instant);
-		Timer time = new Timer();
+		String nomeTimer = nomeCompromisso + usr.getCliente().toString();
+		Timer timer = new Timer(nomeTimer);
 		System.out.println("[SERVIDOR]: criarAlerta chamando dispararAlerta");
-		time.schedule(new dispararAlerta(infoCompromisso, refDestino), d);
+		timer.schedule(new dispararAlerta(infoCompromisso, refDestino), d);
+		listaAlertas.add(timer);	}
 
-
-
+	@Override
+	public void cancelamentoAlerta(String Nome) throws RemoteException {
+		for(Timer busca : listaAlertas) {
+			if(Thread.currentThread().getName().equals(Nome));
+				busca.cancel();
+		}
 	}
 
 }
