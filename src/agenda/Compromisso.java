@@ -6,14 +6,15 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 
 public class Compromisso implements Serializable {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 	public String Nome;
 	public LocalDate Data;
 	public LocalTime Hora;
 
 	ArrayList<Usuario> Convidados = new ArrayList<>();
-	ArrayList<Alerta> listaNotificacao = new ArrayList<>();
-
-
     public Compromisso(String Nome, LocalDate Data, LocalTime Hora, ArrayList<Usuario> Convidados) {
         this.Nome = Nome;
     	this.Data = Data;

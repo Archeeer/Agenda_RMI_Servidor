@@ -13,19 +13,23 @@ import java.util.Timer;
 
 public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 	ArrayList<Compromisso> listaCompromissos = new ArrayList<>();
 	ArrayList<Usuario> listaClientes = new ArrayList<>();
-	ArrayList<Alerta> listaAlertas = new ArrayList<>();
+	ArrayList<Timer> listaAlertas = new ArrayList<>();
 
 	protected ImplServ() throws RemoteException {
 		super();
 	}
 
-//	@Override
-//	public PublicKey getPublicKey() throws RemoteException {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+	//	@Override
+	//	public PublicKey getPublicKey() throws RemoteException {
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
 
 	@Override
 	public void cadastroUsuario(String N, InterfaceCli C) throws RemoteException{
@@ -34,23 +38,30 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 		listaClientes.add(U);
 		System.out.println("[SERVIDOR]: Cliente: " + N + " Conectado e Usuario cadastrado!");
 
-//		return getPublicKey().hashCode();
+		//		return getPublicKey().hashCode();
 	}
 
 	@Override
-	public void cadastroCompromisso(String Nome, LocalDate Data, LocalTime Hora, ArrayList<Usuario> Convidados) throws RemoteException {
+	public void cadastroCompromisso(String nomeOrigem, String  Nome, LocalDate Data, LocalTime Hora, ArrayList<Usuario> Convidados) throws RemoteException {
 
-		Compromisso C = new Compromisso (Nome, Data, Hora, Convidados);
-		listaCompromissos.add(C);
+		Compromisso compromisso = new Compromisso (Nome, Data, Hora, Convidados);
+		listaCompromissos.add(compromisso);
 		System.out.println("[SERVIDOR]: Cliente Adicionou o Compromisso " + Nome );
 
-		for(Compromisso compromisso: listaCompromissos) {
-		    System.out.println(compromisso);  // Will invoke overrided `toString()` method
-		    System.out.println(compromisso.Convidados);  // Will invoke overrided `toString()` method
+		if(!Convidados.isEmpty()) {
+			for(Usuario usuario : Convidados) {
+				if(!usuario.getNome().equals(nomeOrigem))
+					usuario.getCliente().mostrarConvite(compromisso);
+			}
+		}
+
+		for(Compromisso compCont: listaCompromissos) {
+			System.out.println(compCont);  // Will invoke overrided `toString()` method
+			System.out.println(compCont.Convidados);  // Will invoke overrided `toString()` method
 		}
 
 	}
-//
+	//
 	@Override
 	public void cancelamentoCompromisso(String Nome) throws RemoteException {
 
@@ -90,7 +101,7 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 				return user;
 			}
 		}
-			    return null;
+		return null;
 	}
 
 	public Compromisso buscarCompromisso(String Nome) throws RemoteException {
@@ -101,13 +112,14 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 				return compromisso;
 			}
 		}
-			    return null;
+		return null;
 	}
 
 	@Override
 	public void criaAlerta(String hora, String nomeCliente, String nomeCompromisso) throws RemoteException {
 
-		InterfaceCli refDestino = buscarConvidado(nomeCompromisso).getCliente();
+		Usuario usr = buscarConvidado(nomeCliente);
+		InterfaceCli refDestino = usr.getCliente();
 		Compromisso compAlerta = buscarCompromisso(nomeCompromisso);
 		String infoCompromisso = compAlerta.toString() + compAlerta.Convidados.toString();
 		LocalTime tempo =  compAlerta.Hora.minusMinutes(Long.parseLong(hora));
@@ -115,7 +127,9 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 		Instant instant = compAlerta.Data.atTime(tempo).atZone(ZoneId.systemDefault()).toInstant();
 		Date d = Date.from(instant);
 		Timer time = new Timer();
+		System.out.println("[SERVIDOR]: criarAlerta chamando dispararAlerta");
 		time.schedule(new dispararAlerta(infoCompromisso, refDestino), d);
+
 
 
 	}

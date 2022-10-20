@@ -1,5 +1,6 @@
 package agenda;
 
+import java.rmi.RemoteException;
 import java.util.TimerTask;
 
 public class dispararAlerta extends TimerTask{
@@ -16,7 +17,12 @@ public class dispararAlerta extends TimerTask{
 
 	@Override
 	public void run() {
-	refDestino.mostrarAlerta(infoCompromisso);
+	try {
+		System.out.println("[SERVIDOR]: dispararAlerta enviando alerta para o cliente");
+		refDestino.mostrarAlerta(infoCompromisso);
+	} catch (RemoteException e) {
+		e.printStackTrace();
+	}
 	}
 
 }
