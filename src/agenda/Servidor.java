@@ -21,9 +21,9 @@ public class Servidor extends UnicastRemoteObject  {
 
 	public static void main(String[] args) throws RemoteException{
 
-		DateTimeFormatter dataFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-		DateTimeFormatter horaFormat = DateTimeFormatter.ofPattern("HH:mm");
-		LocalDateTime now = LocalDateTime.now();
+//		DateTimeFormatter dataFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//		DateTimeFormatter horaFormat = DateTimeFormatter.ofPattern("HH:mm");
+//		LocalDateTime now = LocalDateTime.now();
         Registry registroNomes = null;
 
         System.out.println("[SERVIDOR]: Criando uma instância do registro de nomes");
