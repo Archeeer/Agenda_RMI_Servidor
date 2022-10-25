@@ -63,19 +63,3 @@ public class Compromisso implements Serializable {
 	    return this.Nome.equals(((Compromisso) arg0).Nome);
 	}
 }
-
-//	public String getNotificacao() {
-//		return Notificacao;
-//	}
-//
-//	public void setNotificacao(String notificacao) {
-//		Notificacao = notificacao;
-//	}
-
-//	public ArrayList<String> getConvidados() {
-//		return listaConvidados;
-//	}
-//
-//	public void setConvidados(byte[] convidados) {
-//		listaConvidados = convidados;
-//	}

@@ -2,6 +2,8 @@ package agenda;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.PublicKey;
+import java.security.SignatureException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,38 +22,40 @@ public class ImplServ extends UnicastRemoteObject implements InterfaceServ {
 	ArrayList<Compromisso> listaCompromissos = new ArrayList<>();
 	ArrayList<Usuario> listaClientes = new ArrayList<>();
 	ArrayList<Timer> listaAlertas = new ArrayList<>();
+    AssinaturaDigital chaveiro;
+    byte[] compAssinado;
 
 	protected ImplServ() throws RemoteException {
 		super();
+		chaveiro = new AssinaturaDigital();
+		chaveiro.gerarChaves();
 	}
 
-	//	@Override
-	//	public PublicKey getPublicKey() throws RemoteException {
-	//		// TODO Auto-generated method stub
-	//		return null;
-	//	}
-
 	@Override
-	public void cadastroUsuario(String N, InterfaceCli C) throws RemoteException{
-
+	public PublicKey cadastroUsuario(String N, InterfaceCli C) throws RemoteException{
+		
 		Usuario U = new Usuario(N, C);
+		
 		listaClientes.add(U);
 		System.out.println("[SERVIDOR]: Cliente: " + N + " Conectado e Usuario cadastrado!");
-
-		//		return getPublicKey().hashCode();
+		return chaveiro.getPub();
+		
+		
 	}
 
 	@Override
-	public void cadastroCompromisso(String nomeOrigem, String  Nome, LocalDate Data, LocalTime Hora, ArrayList<Usuario> Convidados) throws RemoteException {
+	public void cadastroCompromisso(String nomeOrigem, String  Nome, LocalDate Data, LocalTime Hora, ArrayList<Usuario> Convidados) throws RemoteException, SignatureException {
 
 		Compromisso compromisso = new Compromisso (Nome, Data, Hora, Convidados);
 		listaCompromissos.add(compromisso);
 		System.out.println("[SERVIDOR]: Cliente Adicionou o Compromisso " + Nome );
+		String f = compromisso.toString() + "\n" + compromisso.Convidados.toString() + '\n';
 
 		if(!Convidados.isEmpty()) {
 			for(Usuario usuario : Convidados) {
 				if(!usuario.getNome().equals(nomeOrigem))
-					usuario.getCliente().mostrarConvite(compromisso);
+					compAssinado = chaveiro.assinarObjeto(f.getBytes());		
+					usuario.getCliente().mostrarConvite(compromisso, compAssinado);
 			}
 		}
 
